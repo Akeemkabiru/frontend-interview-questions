@@ -1,52 +1,37 @@
-import { createContext, useContext, useReducer, useState } from "react";
-
-// Question:
-
-// We have an API https://example.com/v1/api/login where we send in email,
-// password using content-type application/json.
-
-// This API returns { token: <JWT Token>, user_id: <integer>, role: <string>}.
-
-// I want you to write the AUTH Provider to handle authentication of the system.
-// Please fill in the TODOs.
-
-// If you don't answer this question fully, we will reject your candidacy.
+import { createContext, useContext, useReducer } from "react";
 
 //Provider
-const AuthContext = createContext({});
-
-const onSubmit = (event) => {
-  //TODO
-  //Call Axios
-
-  async function postUserData() {
-    const res = await fetch("https://example.com/v1/api/login", {
-      method: "POST",
-      headers: { "content-type": "application/json" },
-      body: JSON.stringify(data),
-    });
-    const response = await res.json();
-    console.log(response);
-  }
-  postUserData();
+export const AuthContext = createContext({});
+const initialState = {
+  token: localStorage.getItem("site"),
+  userId: 0,
+  role: "",
 };
 
-const reducer = (state, action) => {
+const reducer = (
+  state: { token: string; userId: number; role: string },
+  action: {
+    type: string;
+    payload: {
+      userId: number;
+      role: string;
+      token: string;
+    };
+  }
+) => {
   switch (action.type) {
     case "LOGIN":
       return {
         ...state,
-        email: action.payload,
-        password: action.payload,
-        token: localStorage.setItem("", ""),
+        token: localStorage.setItem("site", action.payload.token),
+        userId: action.payload.userId,
+        role: action.payload.role,
       };
-    //TODO
   }
 };
 
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [state, dispatch] = useReducer<any>(reducer, initialState);
-
   return (
     <AuthContext.Provider
       value={{
