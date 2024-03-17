@@ -1,5 +1,7 @@
 // Question:
 
+import { createContext, useReducer, useState } from "react";
+
 // We have an API https://example.com/v1/api/login where we send in email,
 // password using content-type application/json.
 
@@ -10,54 +12,96 @@
 
 // If you don't answer this question fully, we will reject your candidacy.
 
-// const LoginPage = () => {
-//   const [email, setEmail] = userState('');
-//   const [password, setPassword] = userState('');
+export const LoginPage = () => {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
 
-//   const handleEmailChange = (event) => {
-//     setEmail(event.target.value);
-//   };
-//   const handlePasswordChange = (event) => {
-//     setPassword(event.target.value);
-//   };
+  const handleEmailChange = (event) => {
+    setEmail(event.target.value);
+  };
+  const handlePasswordChange = (event) => {
+    setPassword(event.target.value);
+  };
+  const data = {
+    email,
+    password,
+  };
+  const onSubmit = (event) => {
+    //TODO
+    //Call Axios
+    async function loginAction() {
+      try {
+        const res = await fetch("https://example.com/v1/api/login", {
+          method: "POST",
+          headers: { "content-type": "application/json" },
+          body: JSON.stringify(data),
+        });
+        if (!res.ok) throw new Error("Incorrect Password or Email");
+        const response = await res.json();
+      } catch (error) {
+        console.log(error.message);
+      }
+    }
+  };
 
-//   const onSubmit = (event) => {
-//     //TODO
-//     //Call Axios
-//   }
+  return (
+    <div>
+      <form onSubmit={onSubmit}>
+        <input
+          type="email"
+          name=""
+          id=""
+          onChange={() => handleEmailChange}
+          value={email}
+        />
+        <input
+          type="password"
+          name=""
+          id=""
+          onChange={() => handlePasswordChange}
+          value={password}
+        />
+      </form>
+    </div>
+  );
+};
 
-//   return (<div>
-//   <form onSubmit={onSubmit}>
-//   <input type="email" onChange={}
-//   </form>
-//   </div>);
-// });
+//Provider
+export const AuthContext = createContext();
+const initialState = {
+  token: "",
+  user_id: 0,
+  role: "",
+};
 
-// //Provider
-// export const AuthContext = React.createContext();
-// const initialState = {};
+const reducer = (
+  state: { token: string; user_id: number; role: string },
+  action
+) => {
+  switch (action.type) {
+    case "LOGIN":
+      //TODO
+      return {
+        ...state,
+        token: action.payload.token,
+        user_id: action.payload.user_id,
+        role: action.payload.role,
+      };
+  }
+};
 
-// const reducer = (state, action) => {
-//   switch (action.type) {
-//     case "LOGIN":
-//     //TODO
-//   }
-// };
+const AuthProvider = ({ children }: { children: React.ReactNode }) => {
+  const [state, dispatch] = useReducer(reducer, initialState);
+  return (
+    <AuthContext.Provider
+      value={{
+        state,
+        dispatch,
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
+};
 
-// const AuthProvider = ({ children }) => {
-//   const [state, dispatch] = useReducer(reducer, initialState);
-//   return (
-//     <AuthContext.Provider
-//       value={{
-//         state,
-//         dispatch,
-//       }}
-//     >
-//       {children}
-//     </AuthContext.Provider>
-//   );
-// }
-
-export default function App() {
-  return <div>hello</div>;
-}
+export { AuthProvider };
